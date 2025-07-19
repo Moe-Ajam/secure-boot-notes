@@ -1,9 +1,10 @@
-package com.moecodes.securenote;
+package com.moecodes.securenote.notes.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -17,6 +18,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/contact").permitAll()
                 .anyRequest().authenticated());
+        http.csrf(AbstractHttpConfigurer::disable);
         http.httpBasic(withDefaults());
         http.formLogin(withDefaults());
         return http.build();
