@@ -6,10 +6,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -29,19 +30,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager =
-                new InMemoryUserDetailsManager();
-        UserDetails user1 = User.withUsername("moe")
-                .password("{noop}password")
-                .build();
+    public UserDetailsService userDetailsService(DataSource dataSource) {
+        JdbcUserDetailsManager manager =
+                new JdbcUserDetailsManager(dataSource);
+        if (!manager.userExists("moe")) {
+            manager.createUser(User.withUsername("moe")
+                    .password("password")
+                    .build());
+        }
 
-        UserDetails user2 = User.withUsername("paiv")
-                .password("{noop}password")
-                .build();
-
-        manager.createUser(user1);
-        manager.createUser(user2);
+        if (!manager.userExists("paiv")) {
+            manager.createUser(User.withUsername("paiv")
+                    .password("password")
+                    .build());
+        }
 
         return manager;
     }
